@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "dev.sijunyang"
-version = "0.0.1-SNAPSHOT"
+version = ""
 description = "monitoring-demo"
 
 java {
