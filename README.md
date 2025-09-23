@@ -27,3 +27,17 @@ curl http://localhost:8080/actuator/caches
 ./gradlew clean build
 docker-compose up --build -d app
 ```
+
+5. 확인
+- Prometheus: http://localhost:9090
+- Spring metrics: http://localhost:8080/actuator/prometheus
+- DB metrics: http://localhost:9187/metrics
+
+
+# 관련 자료
+
+- https://github.com/prometheus-community/postgres_exporter
+
+### postgresql.conf
+- https://www.postgresql.org/docs/current/config-setting.html#CONFIG-SETTING-CONFIGURATION-FILE
+- https://berasix.tistory.com/entry/PostgreSQL-%EC%84%A4%EC%B9%98%EC%99%80-%EC%9A%B4%EC%98%81-2-postgresqlconf-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0
