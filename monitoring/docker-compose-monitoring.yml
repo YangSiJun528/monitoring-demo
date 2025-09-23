@@ -20,8 +20,8 @@ services:
     image: prometheuscommunity/postgres-exporter:latest
     container_name: postgres_exporter
     environment:
-      # 애플리케이션 서버의 실제 IP로 DB 연결
-      DATA_SOURCE_NAME: "postgresql://user:password@127.0.0.1:5433/mydb?sslmode=disable"
+      # 애플리케이션 서버의 실제 IP로 DB 연결 (지금은 로컬에서 설정중이라 호스트 IP로 연결중)
+      DATA_SOURCE_NAME: "postgresql://user:password@host.docker.internal:5433/mydb?sslmode=disable"
     ports:
       - "9187:9187"
     networks:
