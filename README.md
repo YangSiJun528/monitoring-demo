@@ -1,40 +1,87 @@
-# Docker Compose로 실행 방법
+## 파일 구조
 
-1. 빌드
+### 애플리케이션 서버
+```
+/
+├── docker-compose-app.yml
+├── postgresql.conf
+├── Dockerfile
+├── build.gradle
+└── src/main/resources/application.properties
+```
+
+### 모니터링 서버
+```
+/monitoring-server/
+├── docker-compose-monitoring.yml
+└── prometheus.yml
+```
+
+## 실행 순서
+
+### 1. 애플리케이션 서버 실행
 ```bash
+cd 프로젝트위치/
 ./gradlew clean build
+docker-compose -f docker-compose-app.yml up --build -d
 ```
 
-2. docker-compose 띄우기
+### 2. 모니터링 서버 실행
 ```bash
-docker-compose up --build -d
+cd monitoring-server
+docker-compose -f docker-compose-monitoring.yml up -d
 ```
 
-3. 테스트
+## 확인
+
+### 애플리케이션 서버
+- Spring App: http://127.0.0.1:8080
+- Spring Metrics: http://127.0.0.1:8080/actuator/prometheus
+- PostgreSQL: 127.0.0.1:5432
+
+### 모니터링 서버
+- Prometheus: http://127.0.0.1:9090
+- PostgreSQL Exporter: http://127.0.0.1:9187/metrics
+
+## IP 변경 방법 (운영환경 배포시)
+
+서비스 서버는 의존이 없으므로 모니터링 쪽만 수정하면 됨.
+
+### prometheus.yml 수정
+```yaml
+scrape_configs:
+  - job_name: 'spring-app'
+    static_configs:
+      - targets: ['실제_애플리케이션_서버_IP:8080']
+```
+
+### docker-compose-monitoring.yml 수정
+```yaml
+environment:
+  DATA_SOURCE_NAME: "postgresql://user:password@실제_애플리케이션_서버_IP:5432/mydb?sslmode=disable"
+```
+
+## 네트워크 구성
+
+- 애플리케이션 서버: 8080(Spring), 5432(PostgreSQL) 포트 노출 (실 서비스라면 적절한 방화벽 설정 필요)
+- 모니터링 서버: host 네트워크 모드로 외부 IP 직접 접근
+- 현재 설정: 127.0.0.1 (동일 서버)
+- 운영 설정: 실제 서버 간 IP 통신
+
+### PostgreSQL 접근 제한
+postgresql.conf, pg_hba.conf 로 접근 가능한 IP/권한 제어 가능 (실제 서비스 아니면 냅둬도 됨)
+
+## 종료
 ```bash
-curl http://localhost:8080/actuator/health
+# 애플리케이션 서버
+docker-compose -f docker-compose-app.yml down
 
-curl http://localhost:8080/actuator/info
-
-curl http://localhost:8080/actuator/beans
-
-curl http://localhost:8080/actuator/caches
+# 모니터링 서버
+docker-compose -f docker-compose-monitoring.yml down
 ```
 
-4. app만 재빌드 후 생성 다시 docker-compose에 연결
 
-```bash
-./gradlew clean build
-docker-compose up --build -d app
-```
-
-5. 확인
-- Prometheus: http://localhost:9090
-- Spring metrics: http://localhost:8080/actuator/prometheus
-- DB metrics: http://localhost:9187/metrics
-
-
-# 관련 자료
+# 기타 자료
 
 - https://github.com/prometheus-community/postgres_exporter
 

@@ -1,0 +1,36 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring_network
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres_exporter
+    environment:
+      # 애플리케이션 서버의 실제 IP로 DB 연결
+      DATA_SOURCE_NAME: "postgresql://user:password@127.0.0.1:5432/mydb?sslmode=disable"
+    ports:
+      - "9187:9187"
+    networks:
+      - monitoring_network
+    network_mode: "host"  # 외부 IP 접근을 위해 host 네트워크 사용
+
+volumes:
+  prometheus_data:
+
+networks:
+  monitoring_network:
+    driver: bridge
