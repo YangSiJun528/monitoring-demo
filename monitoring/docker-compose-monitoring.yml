@@ -26,7 +26,6 @@ services:
       - "9187:9187"
     networks:
       - monitoring_network
-    network_mode: "host"  # 외부 IP 접근을 위해 host 네트워크 사용
 
 volumes:
   prometheus_data:

@@ -6,17 +6,17 @@ scrape_configs:
   # Prometheus 자체 메트릭
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['localhost:9090'] # prometheus 기준 본인이므로
 
   # Spring Boot 애플리케이션 메트릭 (외부 IP)
   - job_name: 'spring-app'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['127.0.0.1:8080']  # 애플리케이션 서버 IP
+      - targets: ['host.docker.internal:8080']  # 애플리케이션 서버 IP (로컬에서 테스트하는 관계로 host.docker.internal 사용)
     scrape_interval: 10s
 
   # PostgreSQL 메트릭 (postgres-exporter를 통해)
   - job_name: 'postgres'
     static_configs:
-      - targets: ['localhost:9187']  # host 네트워크 사용으로 localhost
+      - targets: ['postgres_exporter:9187'] # docker compose 네트워크 내부의 컨테이너 이름
     scrape_interval: 10s
