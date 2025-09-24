@@ -68,6 +68,16 @@ services:
     labels:
       logging_jobname: postgres
 
+  promtail:
+    image: grafana/promtail:2.9.5
+    container_name: promtail_agent
+    volumes:
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - app_network
+
 volumes:
   db_data:
 

@@ -1,23 +1,33 @@
 server:
   http_listen_port: 9080
-  grpc_listen_port: 0
+  grpc_listen_port: 0 # grpc로 하면 성능 더 빨라지려나?
 
 positions:
   filename: /tmp/positions.yaml
 
 clients:
-  - url: http://loki:3100/loki/api/v1/push
+  - url: http://host.docker.internal:3100/loki/api/v1/push  # 모니터링 서버의 Loki 주소
 
 scrape_configs:
   - job_name: containers
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s
+        filters:
+          - name: label
+            values: [ "logging_jobname" ]  # 이 라벨이 있는 컨테이너만
     relabel_configs:
+      # 이게 합 공식인지 이 리스트 중 하나 만족해도 되는건지 모르겠음...
+      #- source_labels: ['__meta_docker_container_name'] # 컨테이너 이름으로 라벨링, 다른 컨테이너까지 다 가져옴, 그래서 비추
+      #  regex: '/(.*)'
+      #  target_label: 'container'
+      #- source_labels: ['__meta_docker_container_log_stream'] # log_stream(err, std) 로 라벨링, 굳이 필요 없어보임.
+     #   target_label: 'logstream'
+      # 근데 이거 붙여도 여기 해당 안되는 컨테이너 로그도 읽긴 하는거 같음. 그래서 에러나는데, 위에서 docker_sd_configs.filters로 아예 앞단에서부터 필터링하니까 잘 됨. 이런거면 source_labels는 용도가 뭐야?
+      # 그냥 순수하게 라벨링만 하는건가?
+      #   발생했던 에러 예시: 3 errors like: entry for stream '{service_name=\"unknown_service\"}' has timestamp too old: 2025-08-23T00:02:33Z
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
         target_label: 'container'
-      - source_labels: ['__meta_docker_container_log_stream']
-        target_label: 'logstream'
       - source_labels: ['__meta_docker_container_label_logging_jobname']
-        target_label: 'job'
+        target_label: 'job' # 이게 뭔 의미가 있는지?
