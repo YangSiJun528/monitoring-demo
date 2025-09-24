@@ -43,6 +43,15 @@ services:
     networks:
       - monitoring_network
 
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.1.0
+    container_name: nginx_exporter
+    command: -nginx.scrape-uri http://host.docker.internal/stub_status
+    ports:
+      - "9113:9113"
+    networks:
+      - monitoring_network
+
 volumes:
   prometheus_data:
   grafana_data:
