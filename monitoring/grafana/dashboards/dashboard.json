@@ -1,0 +1,236 @@
+{
+  "id": null,
+  "title": "Monitoring",
+  "tags": ["spring-boot", "postgresql", "nginx"],
+  "style": "dark",
+  "timezone": "browser",
+  "refresh": "5s",
+  "schemaVersion": 30,
+  "version": 1,
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Nginx - HTTP Requests Rate",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "rate(nginx_http_requests_total[1m])",
+          "legendFormat": "{{method}} - {{status}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "title": "Nginx - Active Connections",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "nginx_connections_active",
+          "legendFormat": "Active",
+          "refId": "A"
+        },
+        {
+          "expr": "nginx_connections_waiting",
+          "legendFormat": "Waiting",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 }
+    },
+    {
+      "id": 3,
+      "title": "App Server - HTTP Requests Rate by Server",
+      "type": "timeseries",
+      "targets": [
+        {
+          "_comment": "서버별 HTTP 요청율 (모든 URI, error, exception 포함하여 서버별 총합)",
+          "expr": "sum(rate(http_server_requests_seconds_count[1m])) by (server)",
+          "legendFormat": "{{server}} - Total Requests",
+          "refId": "A"
+        },
+        {
+          "_comment": "서버별 HTTP 메소드별 요청율",
+          "expr": "sum(rate(http_server_requests_seconds_count[1m])) by (server, method)",
+          "legendFormat": "{{server}} - {{method}}",
+          "refId": "B"
+        },
+        {
+          "_comment": "서버별 상태코드별 요청율",
+          "expr": "sum(rate(http_server_requests_seconds_count[1m])) by (server, status)",
+          "legendFormat": "{{server}} - {{status}}",
+          "refId": "C"
+        },
+        {
+          "_comment": "전체 서버 총 요청율",
+          "expr": "sum(rate(http_server_requests_seconds_count[1m]))",
+          "legendFormat": "Total - All Servers",
+          "refId": "D"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 }
+    },
+    {
+      "id": 4,
+      "title": "App Server - Response Times by Server",
+      "type": "timeseries",
+      "targets": [
+        {
+          "_comment": "서버별 평균 응답시간 (모든 URI, error, exception 포함하여 서버별 평균)",
+          "expr": "sum(rate(http_server_requests_seconds_sum[1m])) by (server) / sum(rate(http_server_requests_seconds_count[1m])) by (server)",
+          "legendFormat": "{{server}} - Avg Response Time",
+          "refId": "A"
+        },
+        {
+          "_comment": "전체 서버 평균 응답시간",
+          "expr": "sum(rate(http_server_requests_seconds_sum[1m])) / sum(rate(http_server_requests_seconds_count[1m]))",
+          "legendFormat": "Total - Avg Response Time",
+          "refId": "B"
+        },
+        {
+          "_comment": "서버별 메소드별 평균 응답시간",
+          "expr": "sum(rate(http_server_requests_seconds_sum[1m])) by (server, method) / sum(rate(http_server_requests_seconds_count[1m])) by (server, method)",
+          "legendFormat": "{{server}} - {{method}} Avg",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 }
+    },
+    {
+      "id": 5,
+      "title": "App Server - JVM Memory Usage by Server",
+      "type": "timeseries",
+      "targets": [
+        {
+          "_comment": "heap 영역 메모리 합계 (Eden, Old Gen, Survivor Space 포함)",
+          "expr": "sum(jvm_memory_used_bytes{area=\"heap\"}) by (server)",
+          "legendFormat": "{{server}} - Heap Used",
+          "refId": "A"
+        },
+        {
+          "_comment": "heap 영역 최대 메모리 합계",
+          "expr": "sum(jvm_memory_max_bytes{area=\"heap\"}) by (server)",
+          "legendFormat": "{{server}} - Heap Max",
+          "refId": "B"
+        },
+        {
+          "_comment": "nonheap 영역 메모리 합계 (CodeHeap, Metaspace, Compressed Class Space 포함)",
+          "expr": "sum(jvm_memory_used_bytes{area=\"nonheap\"}) by (server)",
+          "legendFormat": "{{server}} - NonHeap Used",
+          "refId": "C"
+        },
+        {
+          "_comment": "nonheap 영역 최대 메모리 합계",
+          "expr": "sum(jvm_memory_max_bytes{area=\"nonheap\"}) by (server)",
+          "legendFormat": "{{server}} - NonHeap Max",
+          "refId": "D"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "bytes"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 }
+    },
+    {
+      "id": 6,
+      "title": "App Server - Database Connections by Server",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "hikaricp_connections_active",
+          "legendFormat": "{{server}} - Active",
+          "refId": "A"
+        },
+        {
+          "expr": "hikaricp_connections_idle",
+          "legendFormat": "{{server}} - Idle",
+          "refId": "B"
+        },
+        {
+          "expr": "hikaricp_connections_max",
+          "legendFormat": "{{server}} - Max",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 }
+    },
+    {
+      "id": 7,
+      "title": "PostgreSQL Activity",
+      "type": "timeseries",
+      "targets": [
+        {
+          "_comment": "읽는 사람을 위한 주석, 시스템 데이터베이스(template0, template1, postgres) 제외하고 애플리케이션 DB만 모니터링",
+          "expr": "sum(pg_stat_database_numbackends{datname!~\"template.*|postgres\"}) by (datname)",
+          "legendFormat": "{{datname}} - DB Connections",
+          "refId": "A"
+        },
+        {
+          "_comment": "읽는 사람을 위한 주석, 시스템 데이터베이스(template0, template1, postgres) 제외하고 애플리케이션 DB만 모니터링",
+          "expr": "sum(rate(pg_stat_database_xact_commit{datname!~\"template.*|postgres\"}[1m])) by (datname)",
+          "legendFormat": "{{datname}} - Transactions/sec",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 22 }
+    }
+  ]
+}
