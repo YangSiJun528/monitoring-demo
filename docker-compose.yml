@@ -7,6 +7,10 @@ services:
     ports:
       - "8080:8080" # Actuator 노출용
     environment:
+      PYROSCOPE_SERVER_ADDRESS: http://host.docker.internal:4040
+      PYROSCOPE_APPLICATION_NAME: monitoring-demo.app1
+      PYROSCOPE_FORMAT: jfr
+      PYROSCOPE_DISABLED: false
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydb # app_network 내부 통신이라 여기선 5432가 맞음
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
@@ -25,6 +29,10 @@ services:
     ports:
       - "8081:8080" # Actuator 노출용
     environment:
+      PYROSCOPE_SERVER_ADDRESS: http://host.docker.internal:4040
+      PYROSCOPE_APPLICATION_NAME: monitoring-demo.app2
+      PYROSCOPE_FORMAT: jfr
+      PYROSCOPE_DISABLED: false
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydb # app_network 내부 통신이라 여기선 5432가 맞음
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password

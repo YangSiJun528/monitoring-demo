@@ -1,8 +1,9 @@
 apiVersion: 1
 
 datasources:
-  - name: Prometheus
+  - uid: prometheus
     type: prometheus
+    name: Prometheus
     url: http://prometheus:9090
-    access: proxy
-    isDefault: true
+#    access: proxy
+    isDefault: true # 이거 없으면 대시보드에 안쓰는듯?
